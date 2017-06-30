@@ -13,7 +13,3 @@ services:
       restart_policy:
         condition: on-failure
       replicas: 1
-
-networks:
-  traefik:
-    external: true
