@@ -6,20 +6,27 @@ RUN apt-get install -y git
 RUN mkdir -p /go/src/github.com/oragono
 WORKDIR /go/src/github.com/oragono
 
-RUN git clone https://github.com/oragono/oragono.git
+RUN git clone -b stable https://github.com/oragono/oragono.git
 WORKDIR /go/src/github.com/oragono/oragono
 RUN git submodule update --init
-RUN make linux
 
-# run in Alpine, being a lightweight distro
-FROM alpine:latest
+# compile
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -o build/docker/oragono oragono.go
+
+
+# run in a lightweight distro
+FROM alpine
+
 EXPOSE 6667/tcp 6697/tcp
 
 RUN mkdir -p /ircd
 WORKDIR /ircd
+COPY --from=build-env /go/src/github.com/oragono/oragono/build/docker/ .
+COPY oragono.yaml ircd.yaml
 
-COPY --from=build-env /go/src/github.com/oragono/oragono/build/oragono-XXX-linux.tgz /
-RUN tar -xzf /oragono-XXX-linux.tgz
-COPY run.sh /ircd
+# init
+RUN ./oragono initdb
+RUN ./oragono mkcerts
 
-CMD ["./run.sh"]
+# launch
+CMD ./oragono run
