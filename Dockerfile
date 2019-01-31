@@ -6,7 +6,7 @@ RUN apt-get install -y git
 RUN mkdir -p /go/src/github.com/oragono
 WORKDIR /go/src/github.com/oragono
 
-RUN git clone -b stable https://github.com/oragono/oragono.git
+RUN git clone https://github.com/oragono/oragono.git
 WORKDIR /go/src/github.com/oragono/oragono
 RUN git submodule update --init
 
