@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 # start in right dir
 cd /ircd
