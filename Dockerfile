@@ -1,20 +1,36 @@
-# build Oragono
-FROM golang:rc AS build-env
+## build Oragono
+FROM golang:rc-alpine AS build-env
 
-RUN apt-get install -y git
+RUN apk add --no-cache git
+RUN apk add --no-cache make
+RUN apk add --no-cache curl
 
+# install goreleaser
+RUN mkdir -p /go/src/github.com/goreleaser
+WORKDIR /go/src/github.com/goreleaser
+
+RUN git clone https://github.com/goreleaser/goreleaser.git
+WORKDIR /go/src/github.com/goreleaser/goreleaser
+RUN make setup build
+RUN cp ./goreleaser /usr/bin
+
+# get oragono
 RUN mkdir -p /go/src/github.com/oragono
 WORKDIR /go/src/github.com/oragono
 
-RUN git clone https://github.com/oragono/oragono.git
+RUN git clone --recurse-submodules https://github.com/oragono/oragono.git
 WORKDIR /go/src/github.com/oragono/oragono
-RUN git submodule update --init
 
 # compile
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s" -o build/docker/oragono oragono.go
+RUN make build
 
-# run in a lightweight distro
-FROM alpine
+
+
+## run Oragono
+FROM alpine:3.9
+
+# metadata
+LABEL maintainer="daniel@danieloaks.net"
 
 # install latest updates and configure alpine
 RUN apk update
@@ -24,19 +40,25 @@ RUN mkdir /lib/modules
 # standard ports listened on
 EXPOSE 6667/tcp 6697/tcp
 
-# prep and copy oragono from build environment
-RUN mkdir -p /ircd
-WORKDIR /ircd
-COPY --from=build-env /go/src/github.com/oragono/oragono/build/docker/ .
-COPY --from=build-env /go/src/github.com/oragono/oragono/oragono.yaml ./ircd.yaml
+# oragono itself
+RUN mkdir -p /ircd-bin
+COPY --from=build-env /go/src/github.com/oragono/oragono/dist/linux_arm64/oragono /ircd-bin
+COPY --from=build-env /go/src/github.com/oragono/oragono/languages /ircd-bin/languages/
+COPY --from=build-env /go/src/github.com/oragono/oragono/oragono.yaml /ircd-bin/oragono.yaml
+COPY run.sh /ircd-bin/run.sh
+RUN chmod +x /ircd-bin/run.sh
 
-# init
-RUN ./oragono initdb
-RUN ./oragono mkcerts
+# running volume holding config file, db, certs
+VOLUME /ircd
+WORKDIR /ircd
+
+# default motd
+COPY --from=build-env /go/src/github.com/oragono/oragono/oragono.motd /ircd/oragono.motd
 
 # launch
-CMD ./oragono run
+CMD /ircd-bin/run.sh
 
-# uncomment to debug
-#RUN apk add bash nano
-#CMD /bin/bash
+# # uncomment to debug
+# RUN apk add --no-cache bash
+# RUN apk add --no-cache vim
+# CMD /bin/bash
