@@ -1,9 +1,7 @@
 ## build Oragono
 FROM golang:rc-alpine AS build-env
 
-RUN apk add --no-cache git
-RUN apk add --no-cache make
-RUN apk add --no-cache curl
+RUN apk add --no-cache git make curl
 
 # install goreleaser
 RUN mkdir -p /go/src/github.com/goreleaser
