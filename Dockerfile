@@ -41,7 +41,7 @@ EXPOSE 6667/tcp 6697/tcp
 
 # oragono itself
 RUN mkdir -p /ircd-bin
-COPY --from=build-env /go/src/github.com/oragono/oragono/dist/linux_arm64/oragono /ircd-bin
+COPY --from=build-env /go/src/github.com/oragono/oragono/dist/linux_amd64/oragono /ircd-bin
 COPY --from=build-env /go/src/github.com/oragono/oragono/languages /ircd-bin/languages/
 COPY --from=build-env /go/src/github.com/oragono/oragono/oragono.yaml /ircd-bin/oragono.yaml
 COPY run.sh /ircd-bin/run.sh
