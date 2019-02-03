@@ -16,7 +16,7 @@ RUN cp ./goreleaser /usr/bin
 RUN mkdir -p /go/src/github.com/oragono
 WORKDIR /go/src/github.com/oragono
 
-RUN git clone --recurse-submodules https://github.com/oragono/oragono.git
+RUN git clone --recurse-submodules -b stable https://github.com/oragono/oragono.git
 WORKDIR /go/src/github.com/oragono/oragono
 
 # compile
