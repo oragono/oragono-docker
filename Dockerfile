@@ -29,6 +29,7 @@ FROM alpine:3.9
 
 # metadata
 LABEL maintainer="daniel@danieloaks.net"
+LABEL description="Oragono is a modern, experimental IRC server written in Go"
 
 # install latest updates and configure alpine
 RUN apk update
@@ -54,7 +55,7 @@ WORKDIR /ircd
 COPY --from=build-env /go/src/github.com/oragono/oragono/oragono.motd /ircd/oragono.motd
 
 # launch
-CMD /ircd-bin/run.sh
+ENTRYPOINT ["/ircd-bin/run.sh"]
 
 # # uncomment to debug
 # RUN apk add --no-cache bash

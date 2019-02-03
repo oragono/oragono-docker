@@ -33,4 +33,4 @@ if [ ! -f "/ircd/tls.key" ]; then
 fi
 
 # run!
-/ircd-bin/oragono run
+exec /ircd-bin/oragono run
