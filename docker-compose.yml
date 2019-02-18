@@ -2,10 +2,12 @@ version: "3.2"
 
 services:
   oragono:
-    image: oragono/oragono
+    image: oragono/oragono:dev
     ports:
       - "6667:6667/tcp"
       - "6697:6697/tcp"
+    volumes:
+      - data:/ircd
     deploy:
       placement:
         constraints:
@@ -13,3 +15,6 @@ services:
       restart_policy:
         condition: on-failure
       replicas: 1
+
+volumes:
+  data:
