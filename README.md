@@ -7,7 +7,8 @@ related materials.
 
 The following tags are available:
 
- * `dev` - latest development version; published periodically (may be unstable)
+ * `latest` - latest stable release
+ * `dev` - latest development version (may be unstable)
 
 ## Quick start
 
@@ -17,10 +18,25 @@ certificates. To get a working ircd, all you need to do is run the image and
 expose the ports:
 
 ```shell
-docker run -d -P oragono/oragono:tag
+docker run --name oragono -d -P oragono/oragono:tag
 ```
 
 This will start Oragono and listen on ports 6667 (plain text) and 6697 (TLS).
+The first time Oragono runs it will create a config file with a randomised
+oper password. This is output to stdout, and you can view it with the docker
+logs command:
+
+```shell
+# Assuming your container is named `oragono`; use `docker container ls` to
+# find the name if you're not sure.
+docker logs oragono
+```
+
+You should see a line similar to:
+
+```
+Oper username:password is dan:cnn2tm9TP3GeI4vLaEMS
+```
 
 ## Persisting data
 
@@ -49,8 +65,7 @@ exist, the default config will be written out. You can copy the config from
 the container, edit it, and then copy it back:
 
 ```shell
-# These commands assume the container is named `oragono`
-# If you didn't name it, use `docker container ls` to find the name
+# Assuming that your container is named `oragono`, as above.
 docker cp oragono:/ircd/ircd.yaml .
 vim ircd.yaml # edit the config to your liking
 docker cp ircd.yaml oragono:/ircd/ircd.yaml
