@@ -3,15 +3,6 @@ FROM golang:rc-alpine AS build-env
 
 RUN apk add --no-cache git make curl
 
-# install goreleaser
-RUN mkdir -p /go/src/github.com/goreleaser
-WORKDIR /go/src/github.com/goreleaser
-
-RUN git clone https://github.com/goreleaser/goreleaser.git
-WORKDIR /go/src/github.com/goreleaser/goreleaser
-RUN make setup build
-RUN cp ./goreleaser /usr/bin
-
 # get oragono
 RUN mkdir -p /go/src/github.com/oragono
 WORKDIR /go/src/github.com/oragono
@@ -20,7 +11,7 @@ RUN git clone --recurse-submodules -b stable https://github.com/oragono/oragono.
 WORKDIR /go/src/github.com/oragono/oragono
 
 # compile
-RUN make build
+RUN make
 
 
 
@@ -41,7 +32,7 @@ EXPOSE 6667/tcp 6697/tcp
 
 # oragono itself
 RUN mkdir -p /ircd-bin
-COPY --from=build-env /go/src/github.com/oragono/oragono/dist/linux_amd64/oragono /ircd-bin
+COPY --from=build-env /go/bin/oragono /ircd-bin
 COPY --from=build-env /go/src/github.com/oragono/oragono/languages /ircd-bin/languages/
 COPY --from=build-env /go/src/github.com/oragono/oragono/oragono.yaml /ircd-bin/oragono.yaml
 COPY run.sh /ircd-bin/run.sh
