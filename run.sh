@@ -22,15 +22,8 @@ if [ ! -f "/ircd/ircd.yaml" ]; then
     mv /tmp/ircd2.yaml /ircd/ircd.yaml
 fi
 
-# make db
-if [ ! -f "/ircd/ircd.db" ]; then
-    /ircd-bin/oragono initdb
-fi
-
-# make self-signed certs
-if [ ! -f "/ircd/tls.key" ]; then
-    /ircd-bin/oragono mkcerts
-fi
+# make self-signed certs if they don't already exist
+/ircd-bin/oragono mkcerts
 
 # run!
 exec /ircd-bin/oragono run
